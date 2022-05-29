@@ -9,6 +9,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import phray.sccc.own.exception.BizException;
 import phray.sccc.own.exception.ErrorCodeEnum;
+import phray.sccc.own.json.JsonUtil;
+import phray.sccc.own.log.LoggerUtil;
 import phray.sccc.own.utils.OptionalUtil;
 
 import java.util.Collections;
@@ -46,7 +48,8 @@ public class CommonConverter {
 		try {
 			target = targetType.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			// TODO log
+			LoggerUtil.error(log, e, "CommonConverter.convert()转换异常，source=[%s]，targetType=[%s]",
+					JsonUtil.toJson(source), targetType.getName());
 			throw new BizException(ErrorCodeEnum.COMMON_CONVERTER_ERROR, e);
 		}
 
@@ -75,7 +78,8 @@ public class CommonConverter {
 			BeanUtils.copyProperties(source, target);
 			return target;
 		} catch (BeansException e) {
-			// TODO log
+			LoggerUtil.error(log, e, "CommonConverter.convert()转换异常，source=[%s]，target=[%s]",
+					JsonUtil.toJson(source), JsonUtil.toJson(target));
 			throw new BizException(ErrorCodeEnum.COMMON_CONVERTER_ERROR, e);
 		}
 	}
