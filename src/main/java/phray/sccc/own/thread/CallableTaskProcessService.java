@@ -10,5 +10,24 @@ package phray.sccc.own.thread;
  * @author Phray
  * @Version CallableTaskProcessService.java, v 0.1 2022-05-24 7:24 Sccc Exp $
  */
-public interface CallableTaskProcessService {
+public interface CallableTaskProcessService<R> {
+
+	/**
+	 * 结果数据结构Init
+	 */
+	void init();
+
+	/**
+	 * 数据Merge/fill
+	 *
+	 * @param data
+	 */
+	void fill(R data);
+
+	/**
+	 * 数据获取
+	 *
+	 * @return result
+	 */
+	R get();
 }

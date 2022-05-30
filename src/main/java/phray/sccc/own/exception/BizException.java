@@ -19,6 +19,16 @@ public class BizException extends RuntimeException {
 	 */
 	private final ErrorCodeEnum code;
 
+	public BizException(final ErrorCodeEnum code, final String exceptionMsg) {
+		super(exceptionMsg);
+		this.code = code;
+	}
+
+	public BizException(final ErrorCodeEnum code, final String format, final Object... formatArgs) {
+		super(String.format(format, formatArgs));
+		this.code = code;
+	}
+
 	public BizException(final ErrorCodeEnum code, final Throwable cause, final String exceptionMsg) {
 		super(exceptionMsg, cause);
 		this.code = code;
@@ -30,8 +40,8 @@ public class BizException extends RuntimeException {
 	}
 
 
-	public BizException(ErrorCodeEnum code, final Throwable cause, final String format,
-						final Object... formatArgs) {
+	public BizException(ErrorCodeEnum code, final Throwable cause,
+						final String format, final Object... formatArgs) {
 		super(String.format(format, formatArgs), cause);
 		this.code = code;
 	}

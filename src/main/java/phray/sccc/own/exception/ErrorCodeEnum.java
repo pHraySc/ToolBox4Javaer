@@ -20,10 +20,14 @@ public enum ErrorCodeEnum {
 	SUCCESS("000", "成功"),
 
 	ILLEGAL_ARGUMENT("001", "参数不正确"),
+
 	PROGRAM_ERROR("098", "程序错误"),
 
 	COMMON_CONVERTER_ERROR("100", "Converter转换异常"),
+
 	JSON_CONVERT_ERROR("101", "Json格式异常，转换错误"),
+
+	ASYNC_EXEC_EXCEPTION("102", "异步执行错误，线程内部异常"),
 
 	UNKNOWN_EXCEPTION("999", "未知异常"),
 	;
