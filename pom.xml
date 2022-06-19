@@ -8,6 +8,9 @@
 	<artifactId>ToolBox4Javaer</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0-SNAPSHOT</version>
+	<modules>
+		<module>mybatis-sql-interceptor-spring-boot-starter</module>
+	</modules>
 	
 	<properties>
 		<maven.compiler.source>8</maven.compiler.source>
