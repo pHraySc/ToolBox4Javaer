@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import phray.sccc.own.exception.BizException;
 import phray.sccc.own.exception.ErrorCodeEnum;
 import phray.sccc.own.log.LoggerUtil;
@@ -229,5 +230,28 @@ public class ThreadPoolHelper {
 		task.setErrorFlag(errorFlag);
 		task.setErrorReference(errorRef);
 	}
+
+    public <Req, Resp> void doExecute(List<ExecContext<Req, Resp>> execList,
+                                      ThreadPoolEnum threadPoolEnum,
+                                      String bizName,
+                                      Req req, Resp resp) {
+        Assert.notEmpty(execList, "需要执行的上下文不能为空!");
+        Assert.notNull(threadPoolEnum, "线程池枚举不能为空!");
+        Assert.notNull(bizName, "bizName不能为空!");
+
+        List<BaseInnerRun> runnableTasks = Lists.newArrayList();
+        for (ExecContext<Req, Resp> context : execList) {
+            if (Objects.isNull(context.getExecFunc())) {
+                continue;
+            }
+            runnableTasks.add(new BaseInnerRun(context.getBizName()) {
+                @Override
+                protected void doRun() {
+                    context.getExecFunc().accept(req, resp);
+                }
+            });
+        }
+        this.runBatchTask(runnableTasks, bizName, threadPoolEnum);
+    }
 
 }
