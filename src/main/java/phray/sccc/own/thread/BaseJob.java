@@ -103,8 +103,7 @@ public class BaseJob {
         } else {
             errorReference.set(
                     new BizException(
-                            ErrorCodeEnum.ASYNC_EXEC_EXCEPTION, e, ExceptionUtils.getStackTrace(e)
-                    )
+                            ErrorCodeEnum.ASYNC_EXEC_EXCEPTION, e, ExceptionUtils.getStackTrace(e))
             );
         }
     }
