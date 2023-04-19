@@ -13,6 +13,7 @@ import phray.sccc.own.exception.BizException;
 import phray.sccc.own.exception.ErrorCodeEnum;
 import phray.sccc.own.exception.SysException;
 import phray.sccc.own.log.LoggerUtil;
+import phray.sccc.own.utils.ObjectUtil;
 
 import java.util.Map;
 import java.util.Objects;
@@ -30,91 +31,93 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class BaseJob {
 
-	/**
-	 * trace信息，存储MDC
-	 */
-	private Map<String, String> traceContext;
+    /**
+     * trace信息，存储MDC
+     */
+    private Map<String, String> traceContext;
 
-	/**
-	 * 发令枪
-	 */
-	private CountDownLatch countDownLatch;
+    /**
+     * 发令枪
+     */
+    private CountDownLatch countDownLatch;
 
-	/**
-	 * 异常标识，用来标记执行任务过程中是否产生了异常
-	 */
-	private AtomicBoolean errorFlag;
+    /**
+     * 异常标识，用来标记执行任务过程中是否产生了异常
+     */
+    private AtomicBoolean errorFlag;
 
-	/**
-	 * 异常对象引用，将线程池内的异常抛到主线程
-	 */
-	private AtomicReference<RuntimeException> errorReference;
+    /**
+     * 异常对象引用，将线程池内的异常抛到主线程
+     */
+    private AtomicReference<RuntimeException> errorReference;
 
-	/**
-	 * 任务描述(可选)
-	 */
-	private String desc;
+    /**
+     * 任务描述(可选)
+     */
+    private String desc;
 
-	protected BaseJob() {
-		desc = "DEFAULT";
-		traceContext = MDC.getCopyOfContextMap();
-	}
+    protected BaseJob() {
+        desc = "DEFAULT";
+        traceContext = MDC.getCopyOfContextMap();
+    }
 
-	protected BaseJob(String bizName) {
-		this();
-		this.desc = bizName;
-	}
+    protected BaseJob(String bizName) {
+        this();
+        this.desc = bizName;
+    }
 
-	protected BaseJob(String bizName, CountDownLatch countDownLatch) {
-		this();
-		this.desc = bizName;
-		this.countDownLatch = countDownLatch;
-	}
+    protected BaseJob(String bizName, CountDownLatch countDownLatch) {
+        this();
+        this.desc = bizName;
+        this.countDownLatch = countDownLatch;
+    }
 
-	/**
-	 * 前置：资源注入
-	 */
-	protected final void onBefore() {
-		if (Objects.nonNull(traceContext)) {
-			MDC.setContextMap(traceContext);
-		}
-	}
+    /**
+     * 前置：资源注入
+     */
+    protected final void onBefore() {
+        if (Objects.nonNull(traceContext)) {
+            MDC.setContextMap(traceContext);
+        }
+    }
 
-	/**
-	 * 异常：错误处理
-	 *
-	 * @param e 异常对象
-	 */
-	protected final void onError(Exception e) {
-		LoggerUtil.error(log, e, "Job: [%s]-线程内部执行异常 -> [%s]", desc, ExceptionUtils.getStackTrace(e));
-		// 1-标记异常
-		if (Objects.nonNull(errorFlag)) {
-			errorFlag.set(true);
-		}
+    /**
+     * 异常：错误处理
+     *
+     * @param e 异常对象
+     */
+    protected final void onError(Exception e) {
+        LoggerUtil.error(log, e, "Job: [%s]-线程内部执行异常 -> [%s]", desc, ExceptionUtils.getStackTrace(e));
+        if (!ObjectUtil.allNotNull(errorFlag, errorReference)) {
+            throw new BizException(ErrorCodeEnum.PROGRAM_ERROR, e, ExceptionUtils.getMessage(e));
+        }
 
-		// 2-填充异常对象
-		if (e instanceof BizException) {
-			errorReference.set((BizException) e);
-		} else if (e instanceof SysException) {
-			errorReference.set((SysException) e);
-		} else {
-			errorReference.set(
-					new BizException(
-							ErrorCodeEnum.ASYNC_EXEC_EXCEPTION, e, ExceptionUtils.getStackTrace(e)
-					)
-			);
-		}
-	}
+        // 1-标记异常
+        errorFlag.set(true);
 
-	/**
-	 * 后置：释放资源; cdl.countDown()
-	 */
-	protected final void onEnd() {
-		if (Objects.nonNull(countDownLatch)) {
-			countDownLatch.countDown();
-		}
-		if (MapUtils.isNotEmpty(traceContext)) {
-			MDC.clear();
-		}
-	}
+        // 2-填充异常对象
+        if (e instanceof BizException) {
+            errorReference.set((BizException) e);
+        } else if (e instanceof SysException) {
+            errorReference.set((SysException) e);
+        } else {
+            errorReference.set(
+                    new BizException(
+                            ErrorCodeEnum.ASYNC_EXEC_EXCEPTION, e, ExceptionUtils.getStackTrace(e)
+                    )
+            );
+        }
+    }
+
+    /**
+     * 后置：释放资源; cdl.countDown()
+     */
+    protected final void onEnd() {
+        if (Objects.nonNull(countDownLatch)) {
+            countDownLatch.countDown();
+        }
+        if (MapUtils.isNotEmpty(traceContext)) {
+            MDC.clear();
+        }
+    }
 }
