@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Premain-Class: phray.sccc.own.demo.JavaAssistAgentDemo
+Can-Redefine-Classes: true
+Class-Path: javassist-3.20.0-GA.jar
+Can-Retransform-Classes: true
+
