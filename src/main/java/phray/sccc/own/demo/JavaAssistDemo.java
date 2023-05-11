@@ -24,6 +24,8 @@ public class JavaAssistDemo {
         //反射生成增强后的类
         AopDemoService4CGLib aopDemoService4CGLib = (AopDemoService4CGLib) c.newInstance();
         aopDemoService4CGLib.sayHelloFinal();
+        System.out.println("1");
+        System.out.println("2");
     }
 
 }
