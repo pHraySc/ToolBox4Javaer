@@ -11,7 +11,7 @@ import org.apache.ibatis.javassist.CtMethod;
 public class JavaAssistDemo {
     public static void main(String[] args) throws Exception {
         new AopDemoService4CGLib();
-        /*// 获取ClassPool
+        // 获取ClassPool
         ClassPool classPool = ClassPool.getDefault();
         CtClass ctClass = classPool.get("phray.sccc.own.demo.AopDemoService4CGLib");
         // 获取sayHelloFinal方法
@@ -23,7 +23,7 @@ public class JavaAssistDemo {
         Class c = ctClass.toClass();
         //反射生成增强后的类
         AopDemoService4CGLib aopDemoService4CGLib = (AopDemoService4CGLib) c.newInstance();
-        aopDemoService4CGLib.sayHelloFinal();*/
+        aopDemoService4CGLib.sayHelloFinal();
     }
 
 }
